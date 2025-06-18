@@ -1,0 +1,83 @@
+#JASFERJEYAN
+import tkinter as tk
+from tkinter import messagebox, filedialog
+
+root = tk.Tk()
+root.title("To-Do List App")
+root.geometry("500x600")
+root.resizable(False, False)
+tasks = []
+
+def add_task():
+    task = task_entry.get().strip()
+    if task:
+        tasks.append({"task": task, "done": False})
+        task_entry.delete(0, tk.END)
+        update_list()
+    else:
+        messagebox.showwarning("Input Error", "Enter a task!")
+
+def delete_task():
+    sel = task_list.curselection()
+    if sel:
+        tasks.pop(sel[0])
+        update_list()
+    else:
+        messagebox.showwarning("Delete Error", "Select a task to delete.")
+
+def mark_task():
+    sel = task_list.curselection()
+    if sel:
+        tasks[sel[0]]["done"] = not tasks[sel[0]]["done"]
+        update_list()
+    else:
+        messagebox.showwarning("Mark Error", "Select a task to mark.")
+
+def clear_tasks():
+    if messagebox.askyesno("Clear All", "Delete all tasks?"):
+        tasks.clear()
+        update_list()
+
+def update_list():
+    task_list.delete(0, tk.END)
+    for t in tasks:
+        status = "✔ " if t["done"] else ""
+        task_list.insert(tk.END, status + t["task"])
+
+def save_tasks():
+    file = filedialog.asksaveasfilename(defaultextension=".txt")
+    if file:
+        with open(file, "w") as f:
+            for t in tasks:
+                f.write(f"{t['task']}||{t['done']}\n")
+        messagebox.showinfo("Saved", "Tasks saved!")
+
+def load_tasks():
+    file = filedialog.askopenfilename()
+    if file:
+        tasks.clear()
+        with open(file, "r") as f:
+            for line in f:
+                name, done = line.strip().split("||")
+                tasks.append({"task": name, "done": done == "True"})
+        update_list()
+        messagebox.showinfo("Loaded", "Tasks loaded!")
+
+tk.Label(root, text="📝 To-Do List", font=("Arial", 20, "bold")).pack(pady=10)
+task_entry = tk.Entry(root, font=("Arial", 14), width=30)
+task_entry.pack(pady=10)
+
+btns = tk.Frame(root)
+btns.pack(pady=5)
+
+tk.Button(btns, text="Add", width=12, command=add_task).grid(row=0, column=0, padx=5)
+tk.Button(btns, text="Delete", width=12, command=delete_task).grid(row=0, column=1, padx=5)
+tk.Button(btns, text="Mark Done", width=12, command=mark_task).grid(row=0, column=2, padx=5)
+tk.Button(btns, text="Clear All", width=12, command=clear_tasks).grid(row=1, column=0, pady=5)
+tk.Button(btns, text="Save", width=12, command=save_tasks).grid(row=1, column=1, pady=5)
+tk.Button(btns, text="Load", width=12, command=load_tasks).grid(row=1, column=2, pady=5)
+
+task_list = tk.Listbox(root, width=50, height=20, font=("Arial", 14))
+task_list.pack(pady=20)
+
+root.mainloop()
