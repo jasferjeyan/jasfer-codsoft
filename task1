@@ -1,0 +1,48 @@
+#JASFER JEYAN
+import tkinter as tk
+from tkinter import ttk, messagebox
+import secrets
+import string
+
+def generate_password():
+    entry.delete(0, tk.END)
+    try:
+        length = int(length_var.get())
+        if length <= 0:
+            raise ValueError("Length must be positive")
+    except ValueError:
+        messagebox.showerror("Error", "Please enter a valid positive integer for length.")
+        return
+
+    chars = string.ascii_lowercase + string.ascii_uppercase + string.digits + string.punctuation
+    pwd = ''.join(secrets.choice(chars) for _ in range(length))
+    entry.insert(0, pwd)
+
+def copy_password():
+    pwd = entry.get()
+    if not pwd:
+        messagebox.showwarning("Warning", "Nothing to copy – generate a password first.")
+    else:
+        app.clipboard_clear()
+        app.clipboard_append(pwd)
+        messagebox.showinfo("Copied", "Password copied to clipboard!")
+
+app = tk.Tk()
+app.title("Password Generator")
+app.geometry("450x150")
+app.resizable(False, False)
+
+length_var = tk.StringVar(value="12")
+ttk.Label(app, text="Password Length:").pack(pady=(10,0))
+ttk.Entry(app, textvariable=length_var, width=10).pack()
+
+entry = ttk.Entry(app, width=50)
+entry.pack(pady=10)
+
+frame = ttk.Frame(app)
+frame.pack()
+
+ttk.Button(frame, text="Generate", command=generate_password).grid(row=0, column=0, padx=5)
+ttk.Button(frame, text="Copy", command=copy_password).grid(row=0, column=1, padx=5)
+
+app.mainloop()
